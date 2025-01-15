@@ -17,6 +17,11 @@ class Insumo extends Model
         'kg_insumo_total',
     ];
 
+    public function formulacoes()
+    {
+        return $this->belongsToMany(Formulacao::class)->withPivot('quantidade');
+    }
+
     public function produto()
 {
     return $this->belongsTo(Produto::class, 'id_produto', 'id');

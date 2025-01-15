@@ -23,7 +23,7 @@
 
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
+                <header class="bg-green-700 shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
@@ -39,13 +39,17 @@
    <!-- Script Personalizado -->
          @if(session('success'))
             <script>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Sucesso!',
-                    text: '{{ session('success') }}',
-                    confirmButtonColor: '#3085d6',
-                    timer: 3000, // Fecha automaticamente após 3 segundos
-                    timerProgressBar: true
+                 document.addEventListener('DOMContentLoaded', () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso!',
+                        text: '{{ session('success') }}',
+                        confirmButtonColor: '#3085d6',
+                        timer: 3000, // Fecha automaticamente após 3 segundos
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    });
                 });
             </script>
         @endif

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Insumos') }}
+        <h2 class="font-semibold text-xl text-gray-200 leading-tight">
+            {{ __('Listagem de Insumos') }}
         </h2>
     </x-slot>
     <script src="{{ mix('js/sweetalerts.js') }}"></script>
@@ -17,16 +17,16 @@
                     <table class="w-full">
                         <thead>
                             <tr class="border-b border-gray-700">
-                                <th class="font-bold text-left px-4 py-2">#</th>
-                                <th class="font-bold text-left px-4 py-2">Nome</th>
-                                <th class="font-bold text-left px-4 py-2">Unidade</th>
-                                <th class="font-bold text-left px-4 py-2">Quantidade</th>
-                                <th class="font-bold text-left px-4 py-2">Valor Unitário</th>
-                                <th class="font-bold text-left px-4 py-2">Valor Total</th>
-                                <th class="font-bold text-left px-4 py-2">KG Total</th>
-                                <th class="font-bold text-left px-4 py-2">Valor/Kg</th>
-                                <th class="font-bold text-left px-4 py-2">Criado Em</th>
-                                <th class="font-bold text-left px-4 py-2">Ações</th>
+                                <th class="font-bold text-center px-4 py-2">#</th>
+                                <th class="font-bold text-center px-4 py-2">Nome</th>
+                                <th class="font-bold text-center px-4 py-2">Unidade</th>
+                                <th class="font-bold text-center px-4 py-2">Quantidade</th>
+                                <th class="font-bold text-center px-4 py-2">Valor Unitário</th>
+                                <th class="font-bold text-center px-4 py-2">Valor Total</th>
+                                <th class="font-bold text-center px-4 py-2">KG Total</th>
+                                <th class="font-bold text-center px-4 py-2">Valor/Kg</th>
+                                <th class="font-bold text-center px-4 py-2">Criado Em</th>
+                                <th class="font-bold text-center px-4 py-2">Ações</th>
                             </tr>
                         </thead>
                         <tbody>

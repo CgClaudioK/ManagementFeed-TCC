@@ -1,10 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-200 leading-tight">
             {{ __('Cadastrar Insumo') }}
         </h2>
     </x-slot>
-
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
     <div class="py-12 pt-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -49,6 +53,7 @@
                             <select id="unidade" name="unidade" class="w-full border dark:border-gray-700 rounded dark:bg-gray-900">
                                 <option value="" selected>-- Selecione a Unidade --</option>
                                 <option value="KG">KG</option>
+                                <option value="SACA">SACA</option>
                                 <option value="G">G</option>
                                 <option value="ML">ML</option>
                                 <option value="L">L</option>

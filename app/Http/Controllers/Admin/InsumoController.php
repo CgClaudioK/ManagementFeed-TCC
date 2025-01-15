@@ -53,22 +53,22 @@ class InsumoController extends Controller
     }
 
     public function edit(string $insumo)
-{
+    {
         $insumo = $this->insumo->findOrFail($insumo); // Busca o insumo
         $produtos = Produto::all(); // Busca todos os produtos
 
         return view('admin.insumos.edit', compact('insumo', 'produtos'));
-}
+    }
 
     public function update(string $insumo, InsumoFormRequest $request)
-{
+    {
         $insumo = $this->insumo->findOrFail($insumo);
 
         $insumo->update($request->all());
 
         return redirect()->route('admin.insumos.edit', $insumo->id)
         ->with('success', 'Registro atualizado com sucesso!');
-}
+    }
 
     public function destroy(string $insumo){
 

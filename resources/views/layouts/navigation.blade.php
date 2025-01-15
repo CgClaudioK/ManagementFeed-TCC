@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+<nav x-data="{ open: false }" class="bg-green-800 dark:bg-green-800">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -6,8 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                    </a>
+                    <img src="{{asset('assets/logo.png')}}" height="150" width="135">
                 </div>
 
                 <!-- Navigation Links -->
@@ -16,13 +15,18 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
+                    <x-nav-link :href="route('admin.produtos.index')" :active="request()->routeIs('admin.produtos.*')">
+                        {{ __('Produtos') }}
+                    </x-nav-link>
+
                     <x-nav-link :href="route('admin.insumos.index')" :active="request()->routeIs('admin.insumos.*')">
                         {{ __('Insumos') }}
                     </x-nav-link>
                     
-                    <x-nav-link :href="route('admin.receitas.index')" :active="request()->routeIs('admin.receitas.*')">
-                        {{ __('Receitas') }}
+                    <x-nav-link :href="route('admin.formulacoes.index')" :active="request()->routeIs('admin.formulacoes.*')">
+                        {{ __('Formulações') }}
                     </x-nav-link>
+                    
                 </div>
             </div>
 
@@ -30,7 +34,7 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-100 bg-green-800 hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
                             <div>{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">
@@ -43,7 +47,7 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            {{ __('Perfil') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -53,7 +57,7 @@
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                                {{ __('Sair') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -78,12 +82,19 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('admin.produtos.index')" :active="request()->routeIs('admin.produtos.*')">
+                {{ __('Produtos') }}
+            </x-responsive-nav-link>
+
             <x-responsive-nav-link :href="route('admin.insumos.index')" :active="request()->routeIs('admin.insumos.*')">
                 {{ __('Insumos') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('admin.receitas.index')" :active="request()->routeIs('admin.receitas.*')">
-                {{ __('Receitas') }}
+
+            <x-responsive-nav-link :href="route('admin.formulacoes.index')" :active="request()->routeIs('admin.formulacoes.*')">
+                {{ __('Formulações') }}
             </x-responsive-nav-link>
+
         </div>
 
         <!-- Responsive Settings Options -->
@@ -95,7 +106,7 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    {{ __('Perfil') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
@@ -105,7 +116,7 @@
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                        {{ __('Sair') }}
                     </x-responsive-nav-link>
                 </form>
             </div>

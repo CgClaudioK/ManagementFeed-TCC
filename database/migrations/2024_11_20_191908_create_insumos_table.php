@@ -15,7 +15,7 @@ class CreateInsumosTable extends Migration
     {
         Schema::create('insumos', function (Blueprint $table) {
             $table->id(); // Chave primária
-            $table->int('id_produto'); // Nome do produto
+            $table->integer('id_produto'); // Nome do produto
             $table->string('unidade'); // Unidade
             $table->decimal('quantidade_insumo', 10, 4); // Quantidade disponível
             $table->decimal('valor_insumo_kg', 10, 2); // Valor do insumo/kg
@@ -23,7 +23,7 @@ class CreateInsumosTable extends Migration
             $table->decimal('valor_total', 10, 2); // Valor do insumo
             $table->decimal('kg_insumo_total', 10, 2); // KG do insumo
             $table->timestamps(); // Colunas 'created_at' e 'updated_at'
-            $table->foreign('nome_produto')->references('id')->on('produtos')->onDelete('cascade');
+            $table->foreign('id_produto')->references('id')->on('produtos')->onDelete('cascade');
         });
     }
 
