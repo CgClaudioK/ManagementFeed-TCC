@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                    <img src="{{asset('assets/logo.png')}}" height="150" width="135">
+                    <img src="{{asset('assets/logo.png')}}" height="150" width="130">
                 </div>
 
                 <!-- Navigation Links -->
@@ -26,7 +26,19 @@
                     <x-nav-link :href="route('admin.formulacoes.index')" :active="request()->routeIs('admin.formulacoes.*')">
                         {{ __('Formulações') }}
                     </x-nav-link>
-                    
+
+                    <x-nav-link :href="route('admin.bateladas.index')" :active="request()->routeIs('admin.bateladas.*')">
+                        {{ __('Bateladas') }}
+                    </x-nav-link>
+
+                    <div class="flex">
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v2a1 1 0 01-1 1H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-1a1 1 0 01-1-1V6a4 4 0 00-4-4zm2 7H8V6a2 2 0 114 0v3z" clip-rule="evenodd" />
+                        </svg>
+                            {{ __('Usuários') }}
+                        </x-nav-link>
+                    </div>
                 </div>
             </div>
 
@@ -93,6 +105,14 @@
 
             <x-responsive-nav-link :href="route('admin.formulacoes.index')" :active="request()->routeIs('admin.formulacoes.*')">
                 {{ __('Formulações') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('admin.bateladas.index')" :active="request()->routeIs('admin.bateladas.*')">
+                {{ __('Bateladas') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                {{ __('Usuários') }}
             </x-responsive-nav-link>
 
         </div>
