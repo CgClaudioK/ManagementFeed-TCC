@@ -35,7 +35,7 @@ class BateladaController extends Controller
     
         // Calcula o custo total
         $custo_total = $formulacao->insumos->reduce(function ($total, $insumo) {
-            return $total + ($insumo->pivot->quantidade * $insumo->valor_insumo_kg);
+            return $total + $insumo->pivot->quantidade * $insumo->valor_insumo_kg;
         }, 0);
     
         // Cria a batelada

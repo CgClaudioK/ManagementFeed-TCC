@@ -128,39 +128,29 @@ public function update(Request $request, Formulacao $formulacao)
     }
 
     public function getInsumos($id)
-{
-    $formulacao = Formulacao::with('insumos.produto')->findOrFail($id);
-    $totalInsumos = 0;
-    $quantidadeTotalKg = $formulacao->quantidade_total_kg; // Pegando a quantidade total da formulação
-
-    $insumos = $formulacao->insumos->map(function ($insumo) use ($quantidadeTotalKg, &$totalInsumos) {
-        // Calculando o custo do insumo
-        $valorInsumo = $insumo->valor_insumo_kg * $insumo->pivot->quantidade;
-        dd($insumo->pivot->quantidade);
-        $totalInsumos += $valorInsumo;
-
-        return [
-            'id' => $insumo->id,
-            'produto' => [
-                'id' => $insumo->produto->id,
-                'nome' => $insumo->produto->nome_produto,
-            ],
-            'quantidade' => $insumo->pivot->quantidade,
-            'valor_insumo_kg' => $insumo->valor_insumo_kg,
-            'custo_total_insumo' => $valorInsumo,
-        ];
-    });
-
-    // Calculando o valor por kg da batelada
-    $valorKg = $quantidadeTotalKg > 0 ? $totalInsumos / $quantidadeTotalKg : 0;
-
-    // Retornando os insumos e o custo total por kg
-    return response()->json([
-        'insumos' => $insumos,
-        'valor_kg' => $valorKg, // Valor por kg
-        'custo_total' => $totalInsumos, // Custo total
-    ]);
-}
-
-
+    {
+        // Busca a formulação pelo ID, incluindo insumos e seus respectivos produtos
+        $formulacao = Formulacao::with('insumos.produto')->findOrFail($id);
+    
+        // Mapeia os dados para serem retornados
+        $insumos = $formulacao->insumos->map(function ($insumo) {
+            return [
+                'id' => $insumo->id,
+                'produto' => [
+                    'id' => $insumo->produto->id,
+                    'nome' => $insumo->produto->nome_produto,
+                ],
+                'quantidade' => $insumo->pivot->quantidade,
+                'valor_insumo_kg' => $insumo->valor_insumo_kg,
+            ];
+        });
+    
+        // Retorna os dados da formulação e seus insumos
+        return response()->json([
+            'id' => $formulacao->id,
+            'nome' => $formulacao->nome,
+            'quantidade_total_kg' => $formulacao->quantidade_total_kg,
+            'insumos' => $insumos,
+        ]);
+    }
 }

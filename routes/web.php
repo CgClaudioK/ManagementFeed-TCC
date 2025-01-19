@@ -18,13 +18,13 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/admin/users/store', [UserController::class, 'store'])->name('admin.users.store');
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::patch('admin/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
 }); 
-
-Route::get('/test-email', [UserController::class, 'sendTestEmail']);
 
 
 Route::middleware('auth')->group(function () {
@@ -72,17 +72,6 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::put('/produtos/{produto}', [ProdutoController::class, 'update'])->name('produtos.update'); // Atualizar produto
     Route::delete('/produtos/{produto}', [ProdutoController::class, 'destroy'])->name('produtos.destroy'); // Excluir produto
 });
-
-// Gerenciamento da Batelada
-
-
-// Route::get('admin/bateladas', [BateladaController::class, 'index'])->name('bateladas.index');
-// Route::get('admin/bateladas/{id}', [BateladaController::class, 'show'])->name('bateladas.show');
-// Route::resource('/admin/bateladas', BateladaController::class);
-
-
-
-
 
 
 require __DIR__.'/auth.php';

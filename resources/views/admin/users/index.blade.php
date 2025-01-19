@@ -32,6 +32,23 @@
                                     <td class="font-normal px-4 py-2 text-center">{{ $user->email }}</td>
                                     <td class="font-normal px-4 py-2 text-center">{{ $user->access_level }}</td>
                                     <td class="font-normal px-4 py-2 text-center">{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                                    <td class="border px-4 py-2">
+                @if ($user->status)
+                    <span class="text-green-500">Ativo</span>
+                @else
+                    <span class="text-red-500">Inativo</span>
+                @endif
+            </td>
+            <td class="px-4 py-2">
+                <form action="{{ route('users.toggle-status', $user) }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" class="px-2 py-1 text-white rounded 
+                    {{ $user->status ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600' }}">
+                        {{ $user->status ? 'Inativar' : 'Ativar' }}
+                    </button>
+                </form>
+            </td>
                                     <td class="font-normal px-4 py-2 text-center">
                                     <a href="{{ route( 'admin.users.create', $user->id) }}" class="px-2 py-1 text-black dark:text-white">
                                             <i class="fas fa-edit"></i>

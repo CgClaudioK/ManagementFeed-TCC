@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'access_level',
+        'status',
     ];
 
     /**
@@ -45,5 +46,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === 'ATIVO';
     }
 }
