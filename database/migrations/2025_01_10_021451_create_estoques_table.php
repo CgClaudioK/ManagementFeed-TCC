@@ -14,7 +14,8 @@ return new class extends Migration
     Schema::create('estoques', function (Blueprint $table) {
         $table->id();
         $table->unsignedBigInteger('batelada_id');
-        $table->decimal('quantidade_disponivel', 10, 2);
+        $table->decimal('quantidade_movimento', 10, 2);
+        $table->string('tipo_movimento');
         $table->timestamps();
 
         $table->foreign('batelada_id')->references('id')->on('bateladas')->onDelete('cascade');

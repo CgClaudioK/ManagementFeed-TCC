@@ -30,6 +30,7 @@ class FormulacaoController extends Controller
 
     public function store(Request $request)
     {
+
     $request->validate([
         'nome' => 'required|string|max:255',
         'insumos' => 'required|array',
@@ -42,16 +43,13 @@ class FormulacaoController extends Controller
     ]);
 
     foreach ($request->insumos as $index => $insumoId) {
-        Formulacao::create([
-            'receita_id' => $formulacao->id,
-            'insumo_id' => $insumoId,
-            'quantidade_insumo' => $request->quantidades[$index],
+        $formulacao->insumos()->attach($insumoId, [
+            'quantidade' => $request->quantidades[$index],
         ]);
     }
-    
-
     return redirect()->route('admin.formulacoes.index')->with('success', 'Formulação criada com sucesso!');
     }
+
     public function formulacoes(Request $request)
     {
     // Validação dos dados
@@ -153,4 +151,5 @@ public function update(Request $request, Formulacao $formulacao)
             'insumos' => $insumos,
         ]);
     }
+
 }

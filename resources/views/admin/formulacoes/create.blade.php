@@ -108,15 +108,15 @@
 
                                     insumosDisponiveis.forEach(insumo => {
                                         const option = document.createElement('option');
-                                        option.value = insumo.id; // O ID do insumo
+                                        option.value = insumo.id_produto; // O ID do insumo
                                         option.textContent = `${insumo.produto.nome_produto} (${insumo.unidade})`; // Nome do produto e unidade
                                         insumoSelect.appendChild(option);
                                     });
-
+                                    
                                     // Campo para a quantidade
                                     const quantidadeInput = document.createElement('input');
                                     quantidadeInput.type = 'number';
-                                    quantidadeInput.step = '0.01'; // Permite dois dígitos decimais
+                                    quantidadeInput.step = '0.001'; // Permite tres dígitos decimais
                                     quantidadeInput.name = 'quantidades[]';
                                     quantidadeInput.placeholder = 'Quantidade';
                                     quantidadeInput.required = true;

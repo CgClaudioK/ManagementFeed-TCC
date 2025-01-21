@@ -4,11 +4,21 @@
             Cadastrar Nova Batelada
         </h2>
     </x-slot>
-
+    
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
+                    @if(session('error'))
+                        <div class="w-full my-4 p-4 border border-red-900 bg-red-300 text-red-900 rounded font-bold">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+                    @if(session('max_batelada'))
+                        <div class="mt-4 p-4 border border-yellow-600 bg-yellow-100 text-yellow-900 rounded">
+                            <strong>Você pode produzir até {{ session('max_batelada') }} kg com os insumos disponíveis.</strong>
+                        </div>
+                    @endif
                     <form action="{{ route('admin.bateladas.store') }}" method="POST">
                         @csrf
 

@@ -73,9 +73,9 @@
 
                                 insumosDisponiveis.forEach(insumo => {
                                     const option = document.createElement('option');
-                                    option.value = insumo.id;
+                                    option.value = insumo.id_produto;;
                                     option.textContent = `${insumo.produto.nome_produto} (${insumo.unidade})`;
-                                    if (insumoSelecionado && insumoSelecionado == insumo.id) {
+                                    if (insumoSelecionado && insumoSelecionado == insumo.id_produto) {
                                         option.selected = true;
                                     }
                                     insumoSelect.appendChild(option);
@@ -84,7 +84,7 @@
                                 // Campo para a quantidade
                                 const quantidadeInput = document.createElement('input');
                                 quantidadeInput.type = 'number';
-                                quantidadeInput.step = '0.01';
+                                quantidadeInput.step = '0.001';
                                 quantidadeInput.name = 'quantidades[]';
                                 quantidadeInput.value = quantidade;
                                 quantidadeInput.placeholder = 'Quantidade';
@@ -108,9 +108,9 @@
 
                             // Adicionar campos para insumos existentes
                             insumosExistentes.forEach(insumo => {
-                                criarCampoInsumo(insumo.id, insumo.pivot.quantidade);
+                                criarCampoInsumo(insumo.id_produto, insumo.pivot.quantidade);
                             });
-
+                            console.log(insumosExistentes)
                             // Adicionar um novo insumo vazio
                             addInsumoButton.addEventListener('click', () => {
                                 criarCampoInsumo();

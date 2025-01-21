@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\InsumoController;
 use App\Http\Controllers\Admin\FormulacaoController;
 use App\Http\Controllers\Admin\ProdutoController;
 use App\Http\Controllers\Admin\BateladaController;
+use App\Http\Controllers\Admin\MovimentacaoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 
@@ -36,6 +37,16 @@ Route::middleware('auth')->group(function () {
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::resource('insumos', InsumoController::class);
 });
+
+// Rota para listar o histórico de movimentações
+Route::get('/admin/insumos/movimentacoes', [MovimentacaoController::class, 'historico'])
+    ->name('admin.insumos.movimentacoes');
+
+// Rota para mostrar uma movimentação específica
+Route::get('/admin/insumos/movimentacao/{id}', [MovimentacaoController::class, 'show'])
+    ->name('admin.insumos.movimentacao');
+
+
 
 Route::get( '/admin/formulacoes', [FormulacaoController::class, 'index'])
     ->name('admin.formulacoes.index');

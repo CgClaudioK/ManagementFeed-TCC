@@ -13,7 +13,7 @@ class CreateFormulacaoInsumosTable extends Migration
             $table->foreignId('formulacao_id')
                 ->constrained('formulacoes')
                 ->onDelete('cascade');
-            $table->foreignId('insumo_id')
+            $table->foreignId('produto_id')
                 ->constrained('insumos')
                 ->onDelete('cascade');
             $table->decimal('quantidade', 10, 2)->notNullable();

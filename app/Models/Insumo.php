@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Insumo extends Model
 {
+    protected $primaryKey = 'id';
     // Permite a atribuição em massa apenas dos campos listados aqui
     protected $fillable = [
         'id_produto', 
@@ -23,7 +24,13 @@ class Insumo extends Model
     }
 
     public function produto()
-{
-    return $this->belongsTo(Produto::class, 'id_produto', 'id');
-}
+    {
+        return $this->belongsTo(Produto::class, 'id_produto', 'id');
+    }
+
+    public function movimentacoesEstoque()
+    {
+        return $this->hasMany(MovimentacaoEstoque::class);
+    }
+
 }

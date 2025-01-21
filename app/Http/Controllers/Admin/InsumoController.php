@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\InsumoFormRequest;
 use Illuminate\Http\Request;
 use App\Models\Insumo;
-use App\Models\Produto; // Certifique-se de importar o modelo Produto
+use App\Models\Produto;
+use App\Models\MovimentacaoEstoque;
 
 
 class InsumoController extends Controller
@@ -20,6 +21,11 @@ class InsumoController extends Controller
         $insumos = $this->insumo->paginate(10);
         return view('admin.insumos.index', compact('insumos'));
     }
+    public function show($id)
+{
+    $insumo = Insumo::with('produto')->findOrFail($id);
+    return view('admin.insumos.show', compact('insumo'));
+}
 
     public function create(){
         $produtos = Produto::all();
@@ -47,9 +53,20 @@ class InsumoController extends Controller
             : null;
 
         // Salvar no banco
-        Insumo::create($validated);
+        $insumo = Insumo::create($validated);
 
-        return redirect()->route('admin.insumos.index')->with('success', 'Insumo cadastrado com sucesso!');
+        // Registrar a movimentação de entrada
+        MovimentacaoEstoque::create([
+            'insumo_id' => $insumo->id,
+            'id_produto' => $validated['id_produto'],
+            'tipo' => 'entrada',
+            'quantidade' => $validated['quantidade_insumo'],
+            'valor_unitario' => $validated['valor_unitario'],
+            'valor_total' => $validated['quantidade_insumo'] * $validated['valor_unitario'],
+            'data_movimentacao' => now(),
+        ]);
+
+        return redirect()->route('admin.insumos.index')->with('success', 'Insumo cadastrado e movimentação registrada com sucesso!');
     }
 
     public function edit(string $insumo)
@@ -77,4 +94,39 @@ class InsumoController extends Controller
 
         return redirect()->back();
     }
+
+    public function registrarEntrada(Request $request, $insumoId)
+    {
+    $validated = $request->validate([
+        'quantidade' => 'required|numeric|min:0.01',
+        'valor_unitario' => 'required|numeric|min:0',
+    ]);
+    dd($validated);
+    $insumo = Insumo::findOrFail($insumoId);
+
+    // Atualiza o estoque do insumo
+    $insumo->kg_insumo_total += $validated['quantidade'];
+    $insumo->valor_total = $insumo->kg_insumo_total * $validated['valor_unitario'];
+    $insumo->save();
+    dd($insumo->valor_total);
+    // Registra a movimentação de entrada
+    MovimentacaoEstoque::create([
+        'insumo_id' => $insumo->id,
+        'tipo' => 'entrada',
+        'quantidade' => $validated['quantidade'],
+        'valor_unitario' => $validated['valor_unitario'],
+        'valor_total' => $validated['quantidade'] * $validated['valor_unitario'],
+        'data_movimentacao' => now(),
+    ]);
+
+    return redirect()->back()->with('success', 'Entrada registrada com sucesso!');
+    }
+    public function historicoMovimentacoes($insumoId)
+    {
+        $insumo = Insumo::with('movimentacoesEstoque')->findOrFail($insumoId);
+
+        return view('admin.insumos.historico', compact('insumo'));
+    }
+
+
 }

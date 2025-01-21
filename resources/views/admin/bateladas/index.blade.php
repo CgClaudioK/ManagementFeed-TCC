@@ -21,6 +21,7 @@
                                 <th class="font-bold text-center px-4 py-2">Data de Produção</th>
                                 <th class="font-bold text-center px-4 py-2">Quantidade Total (kg)</th>
                                 <th class="font-bold text-center px-4 py-2">Custo Total</th>
+                                <th class="font-bold text-center px-4 py-2">Valor/Kg</th>
                                 <th class="font-bold text-center px-4 py-2">Ações</th>
                             </tr>
                         </thead>
@@ -31,7 +32,8 @@
                                     <td class="font-normal px-4 py-2 text-center">{{ $batelada->formulacao->nome ?? 'N/A' }}</td>
                                     <td class="font-normal px-4 py-2 text-center">{{ $batelada->created_at->format('d/m/Y H:i') }}</td>
                                     <td class="font-normal px-4 py-2 text-center">{{ $batelada->quantidade_produzida }}</td>
-                                    <td class="font-normal px-4 py-2 text-center">{{ $batelada->custo_total }}</td>
+                                    <td class="font-normal px-4 py-2 text-center">R$ {{ number_format($batelada->custo_total, 2, ',', '.') }}</td>
+                                    <td class="font-normal px-4 py-2 text-center">R$ {{ number_format($batelada->valor_por_kg, 2, ',', '.') }}</td>
                                     <td class="font-normal px-4 py-2 text-center">
                                         <!-- Exemplo de botão para mostrar detalhes -->
                                         <a href="{{ route('admin.bateladas.show', $batelada->id) }}" class="text-black dark:text-white hover:underline fas fa-plus">
@@ -46,6 +48,9 @@
                             @endforelse
                         </tbody>
                     </table>
+                    <div class="mt-10">
+                        {{ $bateladas->links() }}
+                    </div>
                 </div>
             </div>
         </div>

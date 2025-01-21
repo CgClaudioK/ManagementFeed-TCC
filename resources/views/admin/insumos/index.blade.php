@@ -9,6 +9,9 @@
     <div class="py-12 pt-8">
         <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
             <div class="w-full flex justify-end mb-8 pr-4" style="margin-bottom:10px;">
+            <!-- <a href="{{ route('admin.insumos.movimentacoes') }}" class="px-4 py-2 border border-blue-900 bg-blue-600 text-white hover:bg-blue-900 transition duration-300 ease-in-out rounded">
+                Ver Histórico de Movimentações
+            </a> -->
                 <a href="{{ route('admin.insumos.create') }}" class="px-4 py-2 border border-green-900 bg-green-600 text-white
                     hover:bg-green-900 transition duration-300 ease-in-out rounded">Cadastrar Insumo</a>
             </div>
