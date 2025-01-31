@@ -27,6 +27,7 @@
                             <label for="unidade">Unidade de Peso</label>
                             <select id="unidade" name="unidade" class="w-full border dark:border-gray-700 rounded dark:bg-gray-900">
                                 <option value="KG" {{ $insumo->unidade == 'KG' ? 'selected' : '' }}>KG</option>
+                                <option value="SACA" {{ $insumo->unidade == 'SACA' ? 'selected' : '' }}>SACA</option>
                                 <option value="G" {{ $insumo->unidade == 'G' ? 'selected' : '' }}>G</option>
                                 <option value="ML" {{ $insumo->unidade == 'ML' ? 'selected' : '' }}>ML</option>
                                 <option value="L" {{ $insumo->unidade == 'L' ? 'selected' : '' }}>L</option>

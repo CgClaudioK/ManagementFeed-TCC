@@ -25,7 +25,7 @@ class Insumo extends Model
 
     public function produto()
     {
-        return $this->belongsTo(Produto::class, 'id_produto', 'id');
+        return $this->belongsTo(Produto::class,  'id_produto', 'id');
     }
 
     public function movimentacoesEstoque()

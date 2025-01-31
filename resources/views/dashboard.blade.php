@@ -11,7 +11,11 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <!-- Container -->
                     <div class="flex flex-wrap gap-2 justify-start">
-                        @foreach ($formulacoes as $formulacao)
+                    @foreach ($formulacoes->groupBy('id') as $formulacaoId => $formulacaoGroup)
+                        @php
+                            $formulacao = $formulacaoGroup->first(); // Primeiro registro como referência para a formulação
+                            $uniqueInsumos = $formulacaoGroup->unique('id_produto'); // Filtrar insumos únicos por id_produto
+                        @endphp
                             <!-- Card -->
                             <div class="relative flex flex-col my-6 bg-white shadow-lg border border-gray-200 rounded-lg w-96">
                                 <!-- Título -->
@@ -24,14 +28,12 @@
                                 <div class="p-4">
                                     <h6 class="text-lg font-bold mb-3 text-black">Ingredientes:</h6>
                                     <ul class="list-disc list-inside space-y-1 text-gray-700">
-                                        @forelse ($formulacao->insumos as $insumo)
-                                            <li>{{ $insumo->produto->nome_produto }} ({{ $insumo->pivot->quantidade }} kg)</li>
-                                        @empty
-                                            <li class="text-gray-500 italic">Nenhum insumo encontrado</li>
-                                        @endforelse
+                                    @foreach ($uniqueInsumos as $insumo)
+                                        <li>{{ $insumo->nome_produto }} ({{ $insumo->quantidade_insumo }} KG)</li>
+                                    @endforeach
                                     </ul>
                                     <p class="mt-4 text-gray-800 font-semibold">
-                                        Resultado total: <span class="text-green-600">{{ number_format($formulacao->quantidade_total_kg) }} KG</span>
+                                        Resultado total: <span class="text-green-600">{{ number_format($formulacao->quantidade_total_kg, 2) }} KG</span>
                                     </p>
                                 </div>
                                 <!-- Botões -->

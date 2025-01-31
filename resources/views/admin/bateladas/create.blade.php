@@ -96,16 +96,16 @@
                     return;
                 }
 
-                // Buscar insumos via AJAX
                 fetch(`/admin/formulacoes/${formulacaoId}/insumos`)
                     .then(response => response.json())
                     .then(data => {
+                        console.log('Insumos:', data);
                         if (data.insumos.length > 0) {
                             insumosContainer.classList.remove('hidden');
                             insumosList.innerHTML = data.insumos.map(insumo => `
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        ${insumo.produto.nome} (R$ ${insumo.valor_insumo_kg}/kg)
+                                        ${insumo.produto.nome_produto} (R$ ${insumo.valor_insumo_kg}/kg)
                                     </label>
                                     <input type="number" class="w-full border rounded dark:border-gray-700 dark:bg-gray-900" 
                                         value="${insumo.quantidade}" readonly>

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Formulacao;
+use Illuminate\Support\Facades\DB;
+
 
 class FormulacaoController extends Controller
 {
@@ -21,12 +23,9 @@ class FormulacaoController extends Controller
 
     public function create()
     {
-    $insumos = \App\Models\Insumo::with('produto')->get(); // Carrega os insumos com o produto relacionado
-    return view('admin.formulacoes.create', compact('insumos'));
+        $insumos = \App\Models\Insumo::with('produto')->get(); // Carrega os insumos com o produto relacionado
+        return view('admin.formulacoes.create', compact('insumos'));
     }
-    // public function create(){
-    //     return view('admin.formulacoes.create');
-    // }
 
     public function store(Request $request)
     {
@@ -127,27 +126,42 @@ public function update(Request $request, Formulacao $formulacao)
 
     public function getInsumos($id)
     {
-        // Busca a formulação pelo ID, incluindo insumos e seus respectivos produtos
-        $formulacao = Formulacao::with('insumos.produto')->findOrFail($id);
-    
-        // Mapeia os dados para serem retornados
-        $insumos = $formulacao->insumos->map(function ($insumo) {
+        // $formulacao = Formulacao::with('insumos.produto')->find($id);
+        $formulacao = DB::table('formulacoes as f')
+            ->join('formulacao_insumos as fi', 'fi.formulacao_id', '=', 'f.id')
+            ->join('insumos as i', 'i.id_produto', '=', 'fi.insumo_id')
+            ->join('produtos as p', 'p.id', '=', 'fi.insumo_id')
+            ->where('formulacao_id', '=',$id)
+            ->get('*');
+
+        // dd($formulacao);
+
+        $insumos = $formulacao->map(function ($insumo) {
             return [
                 'id' => $insumo->id,
                 'produto' => [
-                    'id' => $insumo->produto->id,
-                    'nome' => $insumo->produto->nome_produto,
+                    'id' => $insumo->id,
+                    'nome_produto' => $insumo->nome_produto,
                 ],
-                'quantidade' => $insumo->pivot->quantidade,
-                'valor_insumo_kg' => $insumo->valor_insumo_kg,
+                'quantidade' => $insumo->quantidade,
+                'valor_insumo_kg' => $insumo->valor_insumo_kg, // Valor associado ao id_produto
             ];
         });
-    
+
+// Verificar saída
+
+       // Verifica se há insumos antes de tentar acessar dados
+        if ($insumos->isEmpty()) {
+            return response()->json([
+                'message' => 'Nenhum insumo encontrado para a formulação.',
+            ], 404);
+        }
+
         // Retorna os dados da formulação e seus insumos
         return response()->json([
-            'id' => $formulacao->id,
-            'nome' => $formulacao->nome,
-            'quantidade_total_kg' => $formulacao->quantidade_total_kg,
+            'id' => $formulacao->first()->id ?? null, // Assume que o ID da formulação é o mesmo para todos os insumos
+            'nome' => $formulacao->first()->nome_produto ?? null, // Adapte o nome do campo real
+            'quantidade_total_kg' => $formulacao->sum('quantidade'),
             'insumos' => $insumos,
         ]);
     }

@@ -52,6 +52,7 @@
 
                             // Insumos associados à formulação (injetados no Blade como JSON)
                             const insumosExistentes = @json($formulacao->insumos);
+                            console.log(insumosDisponiveis)
 
                             // Função para criar um novo campo de insumo
                             const criarCampoInsumo = (insumoSelecionado = null, quantidade = '') => {
@@ -70,16 +71,18 @@
                                 defaultOption.textContent = 'Selecione um insumo';
                                 defaultOption.disabled = true;
                                 insumoSelect.appendChild(defaultOption);
-
+                                console.log(insumosDisponiveis, 'disponi')
                                 insumosDisponiveis.forEach(insumo => {
                                     const option = document.createElement('option');
-                                    option.value = insumo.id_produto;;
+                                    option.value = insumo.id_produto;
+                                    console.log(insumoSelecionado , 'option select')
                                     option.textContent = `${insumo.produto.nome_produto} (${insumo.unidade})`;
                                     if (insumoSelecionado && insumoSelecionado == insumo.id_produto) {
                                         option.selected = true;
                                     }
                                     insumoSelect.appendChild(option);
                                 });
+                                
 
                                 // Campo para a quantidade
                                 const quantidadeInput = document.createElement('input');
@@ -106,14 +109,14 @@
                                 insumosList.appendChild(insumoDiv);
                             };
 
-                            // Adicionar campos para insumos existentes
+                            // // Adicionar campos para insumos existentes
+                            // insumosExistentes.forEach(insumo => {
+                            //     criarCampoInsumo(insumo.produto.id, insumo.pivot.quantidade);
+                            // });
+                            console.log('Insumos Existentes:', insumosExistentes);
                             insumosExistentes.forEach(insumo => {
-                                criarCampoInsumo(insumo.id_produto, insumo.pivot.quantidade);
-                            });
-                            console.log(insumosExistentes)
-                            // Adicionar um novo insumo vazio
-                            addInsumoButton.addEventListener('click', () => {
-                                criarCampoInsumo();
+                                 console.log('Criando campo para insumo:', insumo.pivot.insumo_id, 'Quantidade:', insumo.pivot.quantidade);
+                                criarCampoInsumo(insumo.pivot.insumo_id, insumo.pivot.quantidade);
                             });
                         });
                         </script>

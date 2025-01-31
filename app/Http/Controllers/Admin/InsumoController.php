@@ -9,6 +9,7 @@ use App\Models\Insumo;
 use App\Models\Produto;
 use App\Models\MovimentacaoEstoque;
 
+use DB;
 
 class InsumoController extends Controller
 {
@@ -18,7 +19,23 @@ class InsumoController extends Controller
 
     public function index()
     {
-        $insumos = $this->insumo->paginate(10);
+        $insumos = DB::table('insumos')
+            ->join('produtos', 'insumos.id_produto', '=', 'produtos.id')
+            ->select(
+                'insumos.id as insumo_id',
+                'insumos.id_produto',
+                'insumos.unidade',
+                'insumos.quantidade_insumo',
+                'insumos.valor_insumo_kg',
+                'insumos.valor_unitario',
+                'insumos.valor_total',
+                'insumos.kg_insumo_total',
+                'insumos.created_at',
+                'produtos.nome_produto',
+                'produtos.nome_comercial'
+            )
+            ->paginate(10);
+
         return view('admin.insumos.index', compact('insumos'));
     }
     public function show($id)
@@ -108,7 +125,6 @@ class InsumoController extends Controller
     $insumo->kg_insumo_total += $validated['quantidade'];
     $insumo->valor_total = $insumo->kg_insumo_total * $validated['valor_unitario'];
     $insumo->save();
-    dd($insumo->valor_total);
     // Registra a movimentação de entrada
     MovimentacaoEstoque::create([
         'insumo_id' => $insumo->id,
