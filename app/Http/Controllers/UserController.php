@@ -32,9 +32,11 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'access_level' => 'required|in:USER,ADMIN',
+            'status' => 'required|in:ATIVO,INATIVO',
         ]);
 
-        $user->update($request->only('name', 'email'));
+        $user->update($request->only('name', 'email', 'access_level', 'status'));
 
         return redirect()->route('admin.users.index')->with('success', 'Usuário atualizado com sucesso!');
     }

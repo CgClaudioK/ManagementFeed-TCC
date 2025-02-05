@@ -75,7 +75,7 @@
                             <div id="insumos-list" class="space-y-4">
                             </div>
                             <button type="button" id="add-insumo"
-                                class="mt-4 w-full bg-green-700 dark:text-white font-bold py-2 px-4 rounded">
+                                class="mt-4 w-full bg-green-700 text-white font-bold py-2 px-4 rounded">
                                 + Adicionar Insumo
                             </button>
                         </div>

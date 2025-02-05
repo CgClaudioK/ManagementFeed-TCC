@@ -8,6 +8,11 @@
     <div class="py-12 pt-8">
         <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
             <div class="w-full flex justify-end mb-8 pr-4" style="margin-bottom:10px;">
+                <a href="{{ route('admin.bateladas.relatorio') }}" 
+                    class="px-4 py-2 border border-blue-900 bg-blue-600 text-white
+                        hover:bg-blue-900 transition duration-300 ease-in-out rounded">
+                    Ver Relatório
+                </a>
                 <a href="{{ route('admin.bateladas.create') }}" class="px-4 py-2 border border-green-900 bg-green-600 text-white
                     hover:bg-green-900 transition duration-300 ease-in-out rounded">Cadastrar Batelada</a>
             </div>
@@ -51,6 +56,38 @@
                     <div class="mt-10">
                         {{ $bateladas->links() }}
                     </div>
+                    <div class="w-full flex justify-end mb-8 pr-4" style="margin-bottom:10px;">
+                <a href="{{ route('admin.bateladas.exportarCsv') }}" class="px-4 py-2 border border-green-900 bg-green-600 text-white
+                    hover:bg-green-900 transition duration-300 ease-in-out rounded">Cadastrar csbv</a>
+            </div>
+                    <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID Batelada</th>
+                            <th>Formulação ID</th>
+                            <th>Quantidade Produzida</th>
+                            <th>Custo Total</th>
+                            <th>Valor por KG</th>
+                            <th>Data de Produção</th>
+                            <th>Produtos</th>
+                            <th>Quantidades</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($bateladas as $batelada)
+                        <tr>
+                            <td>{{ $batelada->batelada_id }}</td>
+                            <td>{{ $batelada->formulacao_id }}</td>
+                            <td>{{ number_format($batelada->quantidade_produzida, 2, ',', '.') }} kg</td>
+                            <td>R$ {{ number_format($batelada->custo_total, 2, ',', '.') }}</td>
+                            <td>R$ {{ number_format($batelada->valor_por_kg, 2, ',', '.') }}</td>
+                            <td>{{ date('d/m/Y', strtotime($batelada->data_producao)) }}</td>
+                            <td>{{ $batelada->produtos }}</td>
+                            <td>{{ $batelada->quantidades }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
                 </div>
             </div>
         </div>

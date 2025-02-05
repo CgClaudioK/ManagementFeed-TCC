@@ -38,9 +38,10 @@
                                 </div>
                                 <!-- Botões -->
                                 <div class="flex justify-between px-4 pb-4 mt-auto">
-                                    <button class="rounded-md bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 text-sm shadow-md transition-all">
+                                    <a href="{{ route('admin.bateladas.create', ['formulacao_id' => $formulacao->id]) }}"
+                                        class="rounded-md bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 text-sm shadow-md transition-all">
                                         Produzir mais
-                                    </button>
+                                    </a>
                                     <button class="rounded-md bg-green-600 hover:bg-green-800 text-white py-2 px-4 text-sm shadow-md transition-all">
                                         Distribuir
                                     </button>

@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\FormulacaoController;
 use App\Http\Controllers\Admin\ProdutoController;
 use App\Http\Controllers\Admin\BateladaController;
 use App\Http\Controllers\Admin\MovimentacaoController;
+use App\Http\Controllers\Admin\RelatorioController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 
@@ -24,8 +25,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('/admin/users/store', [UserController::class, 'store'])->name('admin.users.store');
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
+    
+    Route::get('/admin/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+    
     Route::patch('admin/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
-}); 
+});
+    
 
 
 Route::middleware('auth')->group(function () {
@@ -70,9 +76,14 @@ Route::get('/admin/formulacoes/{id}/insumos', [FormulacaoController::class, 'get
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(function () {
     Route::resource('bateladas', BateladaController::class);
+    Route::get('bateladas/create', [BateladaController::class, 'create'])->name('bateladas.create');
+    Route::get('bateladas/exportarCsv', [BateladaController::class, 'exportarCsv'])->name('bateladas.exportarCsv');
 });
 
-Route::get('admin.bateladas.create', [BateladaController::class, 'create'])->name('bateladas.create');
+Route::get( 'admin/bateladas/relatorio', [BateladaController::class, 'relatorio'])
+    ->name('admin.bateladas.relatorio');
+
+
 
 
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {

@@ -8,8 +8,7 @@ use App\Models\Insumo;
 use App\Models\MovimentacaoEstoque;
 use App\Models\Batelada; // Importar o modelo de Batelada
 use App\Models\Estoque; // Importar o modelo de Estoque
-use App\Models\Distribuicao; // Importar o modelo de Distribuicao
-use App\Models\Formulacao; // Importar o modelo de Distribuicao
+use App\Models\Formulacao;
 use Illuminate\Support\Facades\DB;
 
 class BateladaController extends Controller
@@ -36,7 +35,7 @@ class BateladaController extends Controller
         $formulacaoInsumos = DB::table('formulacao_insumos as fi')
         ->join('insumos as i', 'fi.insumo_id', '=', 'i.id_produto')
         ->where('fi.formulacao_id', $validated['formulacao_id'])
-        ->select('i.id_produto', 'fi.insumo_id', 'i.valor_insumo_kg', 'i.id', DB::raw('SUM(fi.quantidade) as quantidade'))
+        ->select('i.id_produto', 'fi.insumo_id', 'i.valor_insumo_kg', 'i.id', DB::raw('SUM(i.kg_insumo_total) as quantidade'))
         ->groupBy('i.id_produto', 'fi.insumo_id', 'i.valor_insumo_kg', 'i.id')
         ->get()
         ->unique('id_produto')
@@ -110,7 +109,7 @@ class BateladaController extends Controller
         Estoque::create([
             'batelada_id' => $batelada->id,
             'quantidade_movimento' => $validated['quantidade_produzida'],
-            'tipo_movimento' => 'ENTRADA'
+            'tipo_movimento' => 'entrada'
         ]);
 
         // Atualizar o estoque dos insumos
@@ -220,6 +219,85 @@ class BateladaController extends Controller
             'quantidade_gasta_insumos' => $quantidadeGastaInsumos, // Retorna a quantidade gasta de cada insumo
         ];
     }
+
+    public function relatorio()
+    {
+        $bateladas = DB::table('bateladas as b')
+            ->join('formulacoes as f', 'b.formulacao_id', '=', 'f.id')
+            ->join('formulacao_insumos as fi', 'f.id', '=', 'fi.formulacao_id')
+            ->join('insumos as i', 'fi.insumo_id', '=', 'i.id_produto')
+            ->join('produtos as p', 'i.id_produto', '=', 'p.id')
+            ->select(
+                'b.id as batelada_id',
+                'b.formulacao_id',
+                'b.quantidade_produzida',
+                'b.custo_total',
+                'b.valor_por_kg',
+                'b.data_producao',
+                DB::raw("GROUP_CONCAT(p.nome_produto ORDER BY p.nome_produto ASC SEPARATOR ', ') as produtos"),
+                DB::raw("GROUP_CONCAT(fi.quantidade ORDER BY p.nome_produto ASC SEPARATOR ', ') as quantidades")
+            )
+            ->groupBy('b.id', 'b.formulacao_id', 'b.quantidade_produzida', 'b.custo_total', 'b.valor_por_kg', 'b.data_producao')
+            ->get();
+
+        return view('admin.bateladas.relatorio', compact('batelada'));
+    }
+
+    public function exportarCsv()
+    {
+        $bateladas = DB::table('bateladas as b')
+            ->join('formulacoes as f', 'b.formulacao_id', '=', 'f.id')
+            ->join('formulacao_insumos as fi', 'f.id', '=', 'fi.formulacao_id')
+            ->join('insumos as i', 'fi.insumo_id', '=', 'i.id_produto')
+            ->join('produtos as p', 'i.id_produto', '=', 'p.id')
+            ->select(
+                'b.id as batelada_id',
+                'b.formulacao_id',
+                'b.quantidade_produzida',
+                'b.custo_total',
+                'b.valor_por_kg',
+                'b.data_producao',
+                DB::raw("GROUP_CONCAT(p.nome_produto ORDER BY p.nome_produto ASC SEPARATOR ', ') as produtos"),
+                DB::raw("GROUP_CONCAT(fi.quantidade ORDER BY p.nome_produto ASC SEPARATOR ', ') as quantidades")
+            )
+            ->groupBy('b.id', 'b.formulacao_id', 'b.quantidade_produzida', 'b.custo_total', 'b.valor_por_kg', 'b.data_producao')
+            ->get();
+
+        // Criar o arquivo CSV
+        $fileName = 'relatorio_bateladas.csv';
+        $headers = [
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $handle = fopen('php://output', 'w');
+        fputcsv($handle, ['ID Batelada', 'Formulação ID', 'Quantidade Produzida', 'Custo Total', 'Valor por KG', 'Data de Produção', 'Produtos', 'Quantidades']);
+
+        foreach ($bateladas as $batelada) {
+            fputcsv($handle, [
+                $batelada->batelada_id,
+                $batelada->formulacao_id,
+                number_format($batelada->quantidade_produzida, 2, ',', '.'),
+                number_format($batelada->custo_total, 2, ',', '.'),
+                number_format($batelada->valor_por_kg, 2, ',', '.'),
+                date('d/m/Y', strtotime($batelada->data_producao)),
+                $batelada->produtos,
+                $batelada->quantidades
+            ]);
+        }
+
+        fclose($handle);
+        
+        return response()->stream(
+            function () use ($handle) {
+                fclose($handle);
+            }, 200, $headers
+        );
+    }
+
 
     public function destroy($id)
     {

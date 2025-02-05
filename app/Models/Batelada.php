@@ -28,10 +28,4 @@ class Batelada extends Model
     {
         return $this->hasOne(Estoque::class);
     }
-
-    // Relacionamento com Distribuicao
-    public function distribuicoes()
-    {
-        return $this->hasMany(Distribuicao::class);
-    }
 }

@@ -31,7 +31,10 @@
                                     class="w-full border rounded dark:border-gray-700 dark:bg-gray-900">
                                 <option value="">Selecione uma formulação</option>
                                 @foreach ($formulacoes as $formulacao)
-                                    <option value="{{ $formulacao->id }}">{{ $formulacao->nome }}</option>
+                                    <option value="{{ $formulacao->id }}" 
+                                        {{ request('formulacao_id') == $formulacao->id ? 'selected' : '' }}>
+                                        {{ $formulacao->tipo_animal }} - {{ $formulacao->nome }}
+                                    </option>
                                 @endforeach
                             </select>
                             @error('formulacao_id')
