@@ -20,6 +20,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::post('/dashboard/processar', [DashboardController::class, 'processar'])->name('dashboard.processar');
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
@@ -80,8 +82,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
     Route::get('bateladas/exportarCsv', [BateladaController::class, 'exportarCsv'])->name('bateladas.exportarCsv');
 });
 
-Route::get( 'admin/bateladas/relatorio', [BateladaController::class, 'relatorio'])
-    ->name('admin.bateladas.relatorio');
+
+Route::post('admin/bateladas/distribuir/{formulacao_id}', [BateladaController::class, 'distribuir'])->name('bateladas.distribuir');
+
+
+Route::get( 'admin/bateladas/relatorio', [BateladaController::class, 'relatorio'])->name('admin.bateladas.relatorio');
 
 
 

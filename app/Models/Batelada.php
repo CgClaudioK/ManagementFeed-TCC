@@ -10,6 +10,7 @@ class Batelada extends Model
     use HasFactory;
 
     protected $fillable = [
+        'id',
         'formulacao_id',
         'quantidade_produzida',
         'custo_total',

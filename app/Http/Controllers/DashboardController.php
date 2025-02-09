@@ -6,6 +6,8 @@ use App\Models\Formulacao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Batelada;
+use App\Models\Estoque;
 
 class DashboardController extends Controller
 {
@@ -14,11 +16,6 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
-        if ($user && $user->status !== 'ATIVO') {
-            Auth::logout(); // Deslogar o usuário
-            return redirect()->route('login')->with('error', 'Sua conta está inativa. Entre em contato com o administrador.');
-        }
         // Carrega as formulações com os insumos e produtos relacionados
         \DB::statement("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
 
@@ -35,14 +32,10 @@ class DashboardController extends Controller
             )
             ->get();
 
-        // dd($formulacoes);
+        $bateladas = Batelada::with('estoque')->get();
+        $estoques = Estoque::all(); 
 
-        // $formulacoes = Formulacao::with(['insumos' => function($query) {
-        //     $query->where('insumos.id_produto', '=', \DB::raw('formulacao_insumos.insumo_id'));
-        // }])->get();
-
-        // Retorna a view com os dados
-        return view('dashboard', compact('formulacoes'));
+        return view('dashboard', compact('formulacoes', 'bateladas', 'estoques'));
     }
 }
 

@@ -17,8 +17,11 @@ class InsumoController extends Controller
     {
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $ano = $request->input('ano', date('Y')); // Ano escolhido ou ano atual
+
+        // Recupera os insumos para a tabela principal
         $insumos = DB::table('insumos')
             ->join('produtos', 'insumos.id_produto', '=', 'produtos.id')
             ->select(
@@ -36,8 +39,26 @@ class InsumoController extends Controller
             )
             ->paginate(10);
 
-        return view('admin.insumos.index', compact('insumos'));
+        // Relatório consolidado por produto
+        $relatorio = DB::table('insumos')
+            ->join('produtos', 'insumos.id_produto', '=', 'produtos.id')
+            ->leftJoin('movimentacao_estoque', 'insumos.id', '=', 'movimentacao_estoque.insumo_id')
+            ->select(
+                'produtos.nome_produto',
+                DB::raw('SUM(insumos.kg_insumo_total) as total_quantidade'),
+                DB::raw('SUM(insumos.valor_total) as total_gasto'),
+                DB::raw('SUM(insumos.valor_total) / SUM(insumos.kg_insumo_total) as preco_medio'),
+                DB::raw('COALESCE(SUM(CASE WHEN movimentacao_estoque.tipo = "entrada" THEN movimentacao_estoque.quantidade ELSE 0 END), 0) 
+                      - COALESCE(SUM(CASE WHEN movimentacao_estoque.tipo = "saida" THEN movimentacao_estoque.quantidade ELSE 0 END), 0) 
+                      as estoque_disponivel')
+            )
+            ->whereYear('insumos.created_at', $ano) // Filtrar por ano
+            ->groupBy('produtos.nome_produto')
+            ->get();
+
+        return view('admin.insumos.index', compact('insumos', 'relatorio', 'ano'));
     }
+
     public function show($id)
 {
     $insumo = Insumo::with('produto')->findOrFail($id);
@@ -118,7 +139,6 @@ class InsumoController extends Controller
         'quantidade' => 'required|numeric|min:0.01',
         'valor_unitario' => 'required|numeric|min:0',
     ]);
-    dd($validated);
     $insumo = Insumo::findOrFail($insumoId);
 
     // Atualiza o estoque do insumo
@@ -137,12 +157,5 @@ class InsumoController extends Controller
 
     return redirect()->back()->with('success', 'Entrada registrada com sucesso!');
     }
-    public function historicoMovimentacoes($insumoId)
-    {
-        $insumo = Insumo::with('movimentacoesEstoque')->findOrFail($insumoId);
-
-        return view('admin.insumos.historico', compact('insumo'));
-    }
-
 
 }

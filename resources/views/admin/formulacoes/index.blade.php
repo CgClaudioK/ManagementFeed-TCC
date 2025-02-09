@@ -14,8 +14,8 @@
                 </div>
             @endif
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <table class="w-full">
+                <div class="overflow-x-auto p-6 text-gray-900 dark:text-gray-100">
+                    <table class="w-full min-w-max">
                         <thead>
                         <tr class="border-b border-gray-700">
                                 <th class="font-bold px-4 py-2 text-center">#</th>

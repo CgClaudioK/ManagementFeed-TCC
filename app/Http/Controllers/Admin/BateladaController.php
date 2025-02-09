@@ -16,7 +16,23 @@ class BateladaController extends Controller
     public function index()
     {
         $bateladas = Batelada::paginate(10);
-        return view('admin.bateladas.index', compact('bateladas'));
+
+        $bateladaRelatorio = DB::table('bateladas')
+        ->join('formulacoes', 'bateladas.formulacao_id', '=', 'formulacoes.id')
+        ->select(
+            'formulacoes.nome as nome_formulacao',
+            DB::raw('MONTH(bateladas.data_producao) as mes'),
+            DB::raw('YEAR(bateladas.data_producao) as ano'),
+            DB::raw('SUM(bateladas.quantidade_produzida) as quantidade_total'),
+            DB::raw('AVG(bateladas.custo_total) as custo_total'),
+            DB::raw('AVG(bateladas.valor_por_kg) as valor_por_kg')
+        )
+        ->groupBy('formulacoes.nome', DB::raw('YEAR(bateladas.data_producao)'), DB::raw('MONTH(bateladas.data_producao)'))
+        ->orderBy(DB::raw('YEAR(bateladas.data_producao)'), 'desc')
+        ->orderBy(DB::raw('MONTH(bateladas.data_producao)'), 'desc')
+        ->get();
+
+        return view('admin.bateladas.index', compact('bateladas', 'bateladaRelatorio'));
     }
 
     public function create()
@@ -220,27 +236,52 @@ class BateladaController extends Controller
         ];
     }
 
+    public function distribuir(Request $request, $formulacao_id)
+    {
+        $validated = $request->validate([
+            'quantidade_distribuida' => 'required|numeric|min:1',
+        ]);
+
+        // Pega todas as bateladas da formulação
+        $bateladas = Batelada::where('formulacao_id', $formulacao_id)->pluck('id');
+
+        // Soma a quantidade produzida de todas as bateladas dessa formulação
+        $quantidadeProduzida = Batelada::where('formulacao_id', $formulacao_id)->sum('quantidade_produzida');
+
+        // Soma todas as saídas de estoque vinculadas a essas bateladas
+        $quantidadeSaida = Estoque::whereIn('batelada_id', $bateladas)
+            ->where('tipo_movimento', 'saida')
+            ->sum('quantidade_movimento');
+
+        // Calcula o saldo disponível
+        $quantidadeDisponivel = $quantidadeProduzida - $quantidadeSaida;
+
+        // Verifica se há estoque suficiente para distribuir
+        if ($quantidadeDisponivel < $validated['quantidade_distribuida']) {
+            return redirect()->back()->with('error', 'Quantidade insuficiente no estoque.');
+        }
+        // $batelada = Batelada::where('formulacao_id', $formulacao_id)->first();
+
+        $batelada = Batelada::where('formulacao_id', $formulacao_id)
+        ->orderBy('data_producao', 'asc')
+        ->first();
+
+        // Registrar movimentação de saída
+        Estoque::create([
+            'batelada_id' => $batelada->id,
+            'quantidade_movimento' => $validated['quantidade_distribuida'],
+            'tipo_movimento' => 'saida',
+        ]);
+
+        return redirect()->back()->with('success', 'Distribuição realizada com sucesso.');
+    }
+
+
     public function relatorio()
     {
-        $bateladas = DB::table('bateladas as b')
-            ->join('formulacoes as f', 'b.formulacao_id', '=', 'f.id')
-            ->join('formulacao_insumos as fi', 'f.id', '=', 'fi.formulacao_id')
-            ->join('insumos as i', 'fi.insumo_id', '=', 'i.id_produto')
-            ->join('produtos as p', 'i.id_produto', '=', 'p.id')
-            ->select(
-                'b.id as batelada_id',
-                'b.formulacao_id',
-                'b.quantidade_produzida',
-                'b.custo_total',
-                'b.valor_por_kg',
-                'b.data_producao',
-                DB::raw("GROUP_CONCAT(p.nome_produto ORDER BY p.nome_produto ASC SEPARATOR ', ') as produtos"),
-                DB::raw("GROUP_CONCAT(fi.quantidade ORDER BY p.nome_produto ASC SEPARATOR ', ') as quantidades")
-            )
-            ->groupBy('b.id', 'b.formulacao_id', 'b.quantidade_produzida', 'b.custo_total', 'b.valor_por_kg', 'b.data_producao')
-            ->get();
+        $bateladas = Batelada::findOrFail(41);
 
-        return view('admin.bateladas.relatorio', compact('batelada'));
+        return view('admin.bateladas.relatorio', compact('bateladas'));
     }
 
     public function exportarCsv()

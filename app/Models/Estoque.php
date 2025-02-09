@@ -11,7 +11,8 @@ class Estoque extends Model
 
     protected $fillable = [
         'batelada_id',
-        'quantidade_disponivel',
+        'quantidade_movimento',
+        'tipo_movimento',
     ];
 
     // Relacionamento com Batelada
