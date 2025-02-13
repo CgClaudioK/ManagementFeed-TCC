@@ -15,7 +15,7 @@
                 <div class="overflow-x-auto p-6 text-gray-900 dark:text-gray-100">
                     <table class="w-full min-w-max">
                         <thead>
-                            <tr>
+                            <tr class="border-b border-gray-700">
                                 <th class="font-bold text-center px-4 py-2">#</th>
                                 <th class="font-bold text-center px-4 py-2">Formulação</th>
                                 <th class="font-bold text-center px-4 py-2">Data de Produção</th>
@@ -36,38 +36,41 @@
                                     <td class="font-normal px-4 py-2 text-center">R$ {{ number_format($batelada->valor_por_kg, 2, ',', '.') }}</td>
                                     <td class="font-normal px-4 py-2 text-center">
                                         <!-- Exemplo de botão para mostrar detalhes -->
-                                        <a href="{{ route('admin.bateladas.show', $batelada->id) }}" class="text-black dark:text-white hover:underline fas fa-plus">
-                                            
+                                        <a href="{{ route('admin.bateladas.show', $batelada->id) }}" class="hover:underline">
+                                            + <!-- Ícone de visualização -->
                                         </a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-4 py-2 text-center">Nenhuma batelada encontrada.</td>
+                                    <td colspan="10" class="text-center py-4 text-gray-500">Nenhuma batelada encontrada.</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                     <div class="mt-10">
                         {{ $bateladas->links() }}
-                    </div>
-                    <div class="w-full flex justify-end mb-8 pr-4" style="margin-bottom:10px;">
-                <a href="{{ route('admin.bateladas.exportarCsv') }}" class="px-4 py-2 border border-green-900 bg-green-600 text-white
-                    hover:bg-green-900 transition duration-300 ease-in-out rounded">Cadastrar csbv</a>
-            </div>
-                 <!-- Separação Visual -->
-            <div class="mt-12">
-                <h2 class="text-xl font-bold text-gray-100 bg-gray-700 p-4 rounded-lg shadow-lg text-center">
-                    Relatórios de Produção
-                </h2>
-            </div>
+                    </div>                   
 
-            <!-- Tabela de Relatórios -->
+                 <!-- Separação Visual -->
+                    <div class="mt-12">
+                        <h2 class="text-xl font-bold dark:text-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-lg text-center">
+                            Relatórios de Produção
+                        </h2>
+                    </div>
+                    <br>
+                    <a href="{{ route('admin.bateladas.exportarcsv') }}" class="p-4 px-4 py-2 border border-green-900 bg-green-600 text-white
+                    hover:bg-green-900 transition duration-300 ease-in-out rounded">
+                                            <i class="bi bi-filetype-pdf"></i>
+                                            <span class="ml-2">Exportar</span>
+                                        </a>   
+
+         <!-- Tabela de Relatórios -->
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="overflow-x-auto p-6 text-gray-900 dark:text-gray-100">
                     <table class="w-full min-w-max">
-                        <thead class="text-white">
-                            <tr>
+                        <thead class="dark:text-white">
+                            <tr class="border-b border-gray-700">
                                 <th class="font-bold text-center px-4 py-2">Mês/Ano</th>
                                 <th class="font-bold text-center px-4 py-2">Nome da Formulação</th>
                                 <th class="font-bold text-center px-4 py-2">Quantidade Produzida</th>
@@ -75,22 +78,29 @@
                                 <th class="font-bold text-center px-4 py-2">Valor por KG (Médio)</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-gray-100 dark:bg-gray-800">
-                            @foreach($bateladaRelatorio as $batelada)
+                        <tbody class=" dark:bg-gray-800">
+                            @if ($bateladaRelatorio->isEmpty())
                                 <tr>
-                                    <td class="px-4 py-2 text-center">
-                                        {{ str_pad($batelada->mes, 2, '0', STR_PAD_LEFT) }}/{{ $batelada->ano }}
-                                    </td>
-                                    <td class="px-4 py-2 text-center">{{ $batelada->nome_formulacao }}</td>
-                                    <td class="px-4 py-2 text-center">{{ number_format($batelada->quantidade_total, 2, ',', '.') }} kg</td>
-                                    <td class="px-4 py-2 text-center">R$ {{ number_format($batelada->custo_total, 2, ',', '.') }}</td>
-                                    <td class="px-4 py-2 text-center">R$ {{ number_format($batelada->valor_por_kg, 2, ',', '.') }}</td>
+                                    <td colspan="5" class="text-center py-4 text-gray-500">Nenhuma produção encontrada.</td>
                                 </tr>
-                            @endforeach
+                            @else
+                                @foreach($bateladaRelatorio as $batelada)
+                                    <tr>
+                                        <td class="px-4 py-2 text-center">
+                                            {{ str_pad($batelada->mes, 2, '0', STR_PAD_LEFT) }}/{{ $batelada->ano }}
+                                        </td>
+                                        <td class="px-4 py-2 text-center">{{ $batelada->nome_formulacao }}</td>
+                                        <td class="px-4 py-2 text-center">{{ number_format($batelada->quantidade_total, 2, ',', '.') }} kg</td>
+                                        <td class="px-4 py-2 text-center">R$ {{ number_format($batelada->custo_total, 2, ',', '.') }}</td>
+                                        <td class="px-4 py-2 text-center">R$ {{ number_format($batelada->valor_por_kg, 2, ',', '.') }}</td>
+                                    </tr>
+                                @endforeach
+                            @endif
                         </tbody>
                     </table>
                 </div>
             </div>
+
             <!-- Modal para Distribuir Ração -->
             <div id="modalDistribuir" style="display: none;" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
                 <div class="bg-white p-6 rounded-lg shadow-lg w-96">

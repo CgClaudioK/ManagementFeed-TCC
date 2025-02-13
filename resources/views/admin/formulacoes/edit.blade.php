@@ -113,7 +113,6 @@
                             // insumosExistentes.forEach(insumo => {
                             //     criarCampoInsumo(insumo.produto.id, insumo.pivot.quantidade);
                             // });
-                            console.log('Insumos Existentes:', insumosExistentes);
                             insumosExistentes.forEach(insumo => {
                                  console.log('Criando campo para insumo:', insumo.pivot.insumo_id, 'Quantidade:', insumo.pivot.quantidade);
                                 criarCampoInsumo(insumo.pivot.insumo_id, insumo.pivot.quantidade);

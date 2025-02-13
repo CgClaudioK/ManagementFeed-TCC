@@ -34,7 +34,7 @@ class ProdutoController extends Controller
             'nome_comercial' => $request->nome_comercial,
         ]);
 
-        return redirect()->route('admin.insumos.create')->with('success', 'Produto cadastrado com sucesso!');
+        return redirect()->route('admin.produtos.index')->with('success', 'Produto cadastrado com sucesso!');
     }
 
     public function edit(string $produto)

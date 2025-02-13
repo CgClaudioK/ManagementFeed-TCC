@@ -79,7 +79,6 @@ class UserController extends Controller
             'access_level' => $request->access_level,
         ]);
 
-        // Opcional: enviar a senha gerada por e-mail para o usuário
         Mail::to($user->email)->send(new UserCredentialsMail($user, $password));
 
         return redirect()->route('admin.users.create')->with('success', 'Usuário criado com sucesso. A senha foi enviada para o e-mail do usuário.');

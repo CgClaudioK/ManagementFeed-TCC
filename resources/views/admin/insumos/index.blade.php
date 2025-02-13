@@ -52,7 +52,7 @@
                                         <form action="{{ route('admin.insumos.destroy', ['insumo' => $insumo->insumo_id]) }}" method="POST" id="delete-form-{{ $insumo->insumo_id }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="button" onclick="confirmDeletion(event, 'delete-form-{{ $insumo->insumo_id }}')" class="px-3 py-2 text-white rounded-md text-xs md:text-sm hover:bg-red-700 transition">
+                                            <button type="button" onclick="confirmDeletion(event, 'delete-form-{{ $insumo->insumo_id }}')" class="px-2 py-1 text-black dark:text-white">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>                                         
@@ -62,7 +62,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5">
+                                    <td colspan="10" class="text-center py-4 text-gray-500">
                                         <h3>Nenhum Insumo Cadastrado...</h3>
                                     </td>
                                 </tr>
@@ -74,7 +74,7 @@
                     </div>
 
                     <div class="mt-12">
-                        <h2 class="text-xl font-bold text-gray-100 bg-gray-700 p-4 rounded-lg shadow-lg text-center">
+                        <h2 class="text-xl font-bold dark:text-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-lg text-center">
                             Relatório de Insumos
                         </h2>
                     </div>
@@ -82,7 +82,7 @@
                     <!-- Filtro de Ano -->
                     <form method="GET" action="{{ route('admin.insumos.index') }}" class="mb-4">
                         <label for="ano" class="mr-2">Selecione o Ano:</label>
-                        <select class="bg-gray-800" name="ano" id="ano" onchange="this.form.submit()">
+                        <select class="dark:bg-gray-800" name="ano" id="ano" onchange="this.form.submit()">
                             @for ($i = date('Y'); $i >= 2024; $i--)
                                 <option value="{{ $i }}" {{ $ano == $i ? 'selected' : '' }}>{{ $i }}</option>
                             @endfor
@@ -93,7 +93,6 @@
                         <thead>
                             <tr class="border-b border-gray-700">
                                 <th class="px-4 py-2 text-center text-sm md:text-base">Nome do Produto</th>
-                                <th class="px-4 py-2 text-center text-sm md:text-base">Quantidade Total</th>
                                 <th class="px-4 py-2 text-center text-sm md:text-base">Valor Total Gasto (R$)</th>
                                 <th class="px-4 py-2 text-center text-sm md:text-base">Preço Médio (R$/Kg)</th>
                                 <th class="px-4 py-2 text-center text-sm md:text-base">Estoque Disponível (Kg)</th>
@@ -103,14 +102,13 @@
                             @forelse ($relatorio as $item)
                                 <tr>
                                     <td class="px-4 py-2 text-center text-sm md:text-base">{{ $item->nome_produto }}</td>
-                                    <td class="px-4 py-2 text-center text-sm md:text-base">{{ number_format($item->total_quantidade, 2, ',', '.') }}</td>
                                     <td class="px-4 py-2 text-center text-sm md:text-base">R$ {{ number_format($item->total_gasto, 2, ',', '.') }}</td>
                                     <td class="px-4 py-2 text-center text-sm md:text-base">R$ {{ number_format($item->preco_medio, 2, ',', '.') }}</td>
                                     <td class="px-4 py-2 text-center text-sm md:text-base">{{ number_format($item->estoque_disponivel, 2, ',', '.') }} Kg</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-4 py-2 text-center">Nenhum dado encontrado para o ano selecionado.</td>
+                                    <td colspan="5" class="text-center py-4 text-gray-500">Nenhum dado encontrado para o ano selecionado.</td>
                                 </tr>
                             @endforelse
                         </tbody>

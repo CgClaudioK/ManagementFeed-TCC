@@ -13,6 +13,7 @@
         <li><strong>Senha:</strong> {{ $password }}</li>
     </ul>
     <p>Por favor, troque sua senha ao fazer login pela primeira vez.</p>
+    <p>Acesse o Feed+ pelo link: http://127.0.0.1:8000/login .</p>
     <p>Obrigado!</p>
 </body>
 </html>

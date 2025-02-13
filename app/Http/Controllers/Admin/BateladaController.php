@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Models\Insumo;
 use App\Models\MovimentacaoEstoque;
 use App\Models\Batelada; // Importar o modelo de Batelada
@@ -24,7 +25,7 @@ class BateladaController extends Controller
             DB::raw('MONTH(bateladas.data_producao) as mes'),
             DB::raw('YEAR(bateladas.data_producao) as ano'),
             DB::raw('SUM(bateladas.quantidade_produzida) as quantidade_total'),
-            DB::raw('AVG(bateladas.custo_total) as custo_total'),
+            DB::raw('SUM(bateladas.custo_total) as custo_total'),
             DB::raw('AVG(bateladas.valor_por_kg) as valor_por_kg')
         )
         ->groupBy('formulacoes.nome', DB::raw('YEAR(bateladas.data_producao)'), DB::raw('MONTH(bateladas.data_producao)'))
@@ -51,14 +52,13 @@ class BateladaController extends Controller
         $formulacaoInsumos = DB::table('formulacao_insumos as fi')
         ->join('insumos as i', 'fi.insumo_id', '=', 'i.id_produto')
         ->where('fi.formulacao_id', $validated['formulacao_id'])
-        ->select('i.id_produto', 'fi.insumo_id', 'i.valor_insumo_kg', 'i.id', DB::raw('SUM(i.kg_insumo_total) as quantidade'))
-        ->groupBy('i.id_produto', 'fi.insumo_id', 'i.valor_insumo_kg', 'i.id')
+        ->select('i.id_produto', 'fi.insumo_id', 'i.valor_insumo_kg', 'i.id', DB::raw('SUM(i.kg_insumo_total) as quantidade'), 'fi.quantidade as qtd_producao')
+        ->groupBy('i.id_produto', 'fi.insumo_id', 'i.valor_insumo_kg', 'i.id', 'fi.quantidade')
         ->get()
         ->unique('id_produto')
         ->filter(function ($insumo) {
             return $insumo->quantidade > 0;
         });
-
         $quantidadeMaxima = null;
 
         if ($formulacaoInsumos->isEmpty()) {
@@ -67,20 +67,19 @@ class BateladaController extends Controller
 
         foreach ($formulacaoInsumos as $insumo) {
             // Quantidade necessária de insumo para 1kg da batelada
-            $quantidadeNecessariaPorKg = $insumo->quantidade; 
+            $quantidadeNecessariaPorKg = $insumo->qtd_producao; 
 
             // Buscando o insumo na tabela 'insumos' pelo id_produto
             $insumoDisponivel = DB::table('insumos')
                 ->where('id_produto', $insumo->insumo_id)
                 ->first();
 
+            
             // Verificando se o insumo foi encontrado
             if ($insumoDisponivel) {
                 $quantidadeDisponivel = $insumoDisponivel->kg_insumo_total; // A quantidade disponível para o insumo
-
                 // Calculando a quantidade máxima de batelada que pode ser produzida com o insumo disponível
                 $quantidadeMaximaPorInsumo = floor($quantidadeDisponivel / $quantidadeNecessariaPorKg);
-
                 // Atualizando a quantidade máxima considerando o limite dos insumos
                 if (is_null($quantidadeMaxima) || $quantidadeMaximaPorInsumo < $quantidadeMaxima) {
                     $quantidadeMaxima = $quantidadeMaximaPorInsumo;
@@ -91,10 +90,9 @@ class BateladaController extends Controller
         session()->flash('max_batelada', $quantidadeMaxima);
 
         $calculos = $this->calcularCustoTotalEValorKg($formulacaoInsumos, $validated['quantidade_produzida']);
-
         // Verificação de estoque antes de criar a batelada
         foreach ($formulacaoInsumos as $insumo) {
-            $quantidadeSaida = $insumo->quantidade * $validated['quantidade_produzida'];
+            $quantidadeSaida = $insumo->qtd_producao * $validated['quantidade_produzida'];
 
             // $insumoEstoque = Insumo::where('id_produto', $insumo->pivot->insumo_id)->first();
             $insumoEstoque = DB::table('insumos as i')
@@ -104,6 +102,7 @@ class BateladaController extends Controller
 
             
             $kgInsumoTotais = $insumoEstoque->sum('kg_insumo_total');
+
             // Verificar se há estoque suficiente
             if ($kgInsumoTotais < $quantidadeSaida) {
                 // Se não houver estoque suficiente, redirecionar de volta com a mensagem de erro
@@ -130,16 +129,13 @@ class BateladaController extends Controller
 
         // Atualizar o estoque dos insumos
         foreach ($formulacaoInsumos as $insumo) {
-            $quantidadeSaida = $insumo->quantidade * $validated['quantidade_produzida'];
-
+            $quantidadeSaida = $insumo->qtd_producao * $validated['quantidade_produzida'];
             // Atualiza o estoque do insumo
             $insumoEstoque = Insumo::where('id_produto', $insumo->insumo_id)->first();
-            $insumoEstoque->kg_insumo_total -= $quantidadeSaida;
 
             if ($insumoEstoque && $insumoEstoque->kg_insumo_total >= $quantidadeSaida) {
                 $insumoEstoque->kg_insumo_total -= $quantidadeSaida;
                 $insumoEstoque->save();
-
 
             // Registra a movimentação de saída
             MovimentacaoEstoque::create([
@@ -147,6 +143,7 @@ class BateladaController extends Controller
                 'tipo' => 'saida',
                 'quantidade' => $quantidadeSaida,
                 'valor_unitario' => $insumoEstoque->valor_insumo_kg,
+                'id_produto' => $insumoEstoque->id_produto,
                 'valor_total' => $quantidadeSaida * $insumoEstoque->valor_insumo_kg,
                 'data_movimentacao' => now(),
             ]);
@@ -163,7 +160,7 @@ class BateladaController extends Controller
 
     public function show($id)
     {
-        $batelada = Batelada::with(['formulacao.insumos.produto', 'distribuicoes'])->findOrFail($id);
+        $batelada = Batelada::findOrFail($id);
 
         return view('admin.bateladas.show', compact('batelada'));
     }
@@ -201,7 +198,6 @@ class BateladaController extends Controller
 
     public function calcularCustoTotalEValorKg($formulacao, float $quantidadeProduzida)
     {
-        // dd($formulacao);
         $custoTotal = 0;
         $quantidadeTotalInsumos = 0; // Variável para armazenar a soma das quantidades dos insumos
         $valorPorKg = 0;
@@ -210,7 +206,7 @@ class BateladaController extends Controller
         // Iterando sobre os insumos
         foreach ($formulacao as $insumo) {
             // Acessando a quantidade e o valor corretamente
-            $quantidadeInsumo = $insumo->quantidade; // Quantidade do insumo na formulação
+            $quantidadeInsumo = $insumo->qtd_producao; // Quantidade do insumo na formulação
             $valorInsumoKg = $insumo->valor_insumo_kg; // Valor por kg do insumo
 
             // Somando a quantidade total dos insumos
@@ -219,20 +215,15 @@ class BateladaController extends Controller
             // Armazenando a quantidade gasta de cada insumo
             $quantidadeGastaInsumos[$insumo->id] = $quantidadeInsumo;
 
-            
-
             // Somando o custo total
             $valorPorKg += $quantidadeInsumo * $valorInsumoKg;
-            $custoTotal +=  $valorPorKg * $quantidadeProduzida;
+            
         }
-
-        // Calcula o valor por kg (custo total dividido pela quantidade produzida)
-        // $valorPorKg = $quantidadeProduzida > 0 ? $custoTotal / $quantidadeProduzida : 0;
-
+        $custoTotal +=  $valorPorKg * $quantidadeProduzida;
         return [
             'custo_total' => $custoTotal,
             'valor_por_kg' => $valorPorKg,
-            'quantidade_gasta_insumos' => $quantidadeGastaInsumos, // Retorna a quantidade gasta de cada insumo
+            'quantidade_gasta_insumos' => array_map(fn($qtd) => $qtd * $quantidadeProduzida, $quantidadeGastaInsumos),
         ];
     }
 
@@ -275,70 +266,55 @@ class BateladaController extends Controller
 
         return redirect()->back()->with('success', 'Distribuição realizada com sucesso.');
     }
-
-
-    public function relatorio()
+    public function exportarcsv(Request $request)
     {
-        $bateladas = Batelada::findOrFail(41);
-
-        return view('admin.bateladas.relatorio', compact('bateladas'));
-    }
-
-    public function exportarCsv()
-    {
-        $bateladas = DB::table('bateladas as b')
-            ->join('formulacoes as f', 'b.formulacao_id', '=', 'f.id')
-            ->join('formulacao_insumos as fi', 'f.id', '=', 'fi.formulacao_id')
-            ->join('insumos as i', 'fi.insumo_id', '=', 'i.id_produto')
-            ->join('produtos as p', 'i.id_produto', '=', 'p.id')
+        dd("teste");
+        $bateladas = DB::table('bateladas')
+            ->join('formulacoes', 'bateladas.formulacao_id', '=', 'formulacoes.id')
             ->select(
-                'b.id as batelada_id',
-                'b.formulacao_id',
-                'b.quantidade_produzida',
-                'b.custo_total',
-                'b.valor_por_kg',
-                'b.data_producao',
-                DB::raw("GROUP_CONCAT(p.nome_produto ORDER BY p.nome_produto ASC SEPARATOR ', ') as produtos"),
-                DB::raw("GROUP_CONCAT(fi.quantidade ORDER BY p.nome_produto ASC SEPARATOR ', ') as quantidades")
+                'formulacoes.nome as nome_formulacao',
+                DB::raw('MONTH(bateladas.data_producao) as mes'),
+                DB::raw('YEAR(bateladas.data_producao) as ano'),
+                DB::raw('SUM(bateladas.quantidade_produzida) as quantidade_total'),
+                DB::raw('AVG(bateladas.custo_total) as custo_total'),
+                DB::raw('AVG(bateladas.valor_por_kg) as valor_por_kg')
             )
-            ->groupBy('b.id', 'b.formulacao_id', 'b.quantidade_produzida', 'b.custo_total', 'b.valor_por_kg', 'b.data_producao')
+            ->groupBy('formulacoes.nome', DB::raw('YEAR(bateladas.data_producao)'), DB::raw('MONTH(bateladas.data_producao)'))
+            ->orderBy(DB::raw('YEAR(bateladas.data_producao)'), 'desc')
+            ->orderBy(DB::raw('MONTH(bateladas.data_producao)'), 'desc')
             ->get();
 
-        // Criar o arquivo CSV
-        $fileName = 'relatorio_bateladas.csv';
-        $headers = [
-            "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma" => "no-cache",
-            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-            "Expires" => "0"
-        ];
+        // Criar o cabeçalho do CSV
+        $csvHeader = ['Mês/Ano', 'Nome da Formulação', 'Quantidade Produzida', 'Custo Total', 'Valor por KG'];
 
-        $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['ID Batelada', 'Formulação ID', 'Quantidade Produzida', 'Custo Total', 'Valor por KG', 'Data de Produção', 'Produtos', 'Quantidades']);
-
+        // Criar o conteúdo do CSV
+        $csvData = [];
         foreach ($bateladas as $batelada) {
-            fputcsv($handle, [
-                $batelada->batelada_id,
-                $batelada->formulacao_id,
-                number_format($batelada->quantidade_produzida, 2, ',', '.'),
-                number_format($batelada->custo_total, 2, ',', '.'),
-                number_format($batelada->valor_por_kg, 2, ',', '.'),
-                date('d/m/Y', strtotime($batelada->data_producao)),
-                $batelada->produtos,
-                $batelada->quantidades
-            ]);
+            $csvData[] = [
+                str_pad($batelada->mes, 2, '0', STR_PAD_LEFT) . '/' . $batelada->ano,
+                $batelada->nome_formulacao,
+                number_format($batelada->quantidade_total, 2, ',', '.'),
+                'R$ ' . number_format($batelada->custo_total, 2, ',', '.'),
+                'R$ ' . number_format($batelada->valor_por_kg, 2, ',', '.')
+            ];
         }
 
-        fclose($handle);
-        
-        return response()->stream(
-            function () use ($handle) {
-                fclose($handle);
-            }, 200, $headers
-        );
-    }
+        // Gerar o CSV
+        $filename = "relatorio_bateladas_" . date('Y-m-d') . ".csv";
+        $handle = fopen('php://temp', 'w');
+        fputcsv($handle, $csvHeader, ';'); // Define o delimitador como ponto e vírgula
+        foreach ($csvData as $row) {
+            fputcsv($handle, $row, ';');
+        }
+        rewind($handle);
 
+        return Response::stream(function () use ($handle) {
+            fpassthru($handle);
+        }, 200, [
+            "Content-Type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename"
+        ]);
+    }
 
     public function destroy($id)
     {

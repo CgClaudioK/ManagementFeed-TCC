@@ -45,17 +45,15 @@ class InsumoController extends Controller
             ->leftJoin('movimentacao_estoque', 'insumos.id', '=', 'movimentacao_estoque.insumo_id')
             ->select(
                 'produtos.nome_produto',
-                DB::raw('SUM(insumos.kg_insumo_total) as total_quantidade'),
-                DB::raw('SUM(insumos.valor_total) as total_gasto'),
+                'insumos.valor_total as total_gasto',
                 DB::raw('SUM(insumos.valor_total) / SUM(insumos.kg_insumo_total) as preco_medio'),
                 DB::raw('COALESCE(SUM(CASE WHEN movimentacao_estoque.tipo = "entrada" THEN movimentacao_estoque.quantidade ELSE 0 END), 0) 
                       - COALESCE(SUM(CASE WHEN movimentacao_estoque.tipo = "saida" THEN movimentacao_estoque.quantidade ELSE 0 END), 0) 
                       as estoque_disponivel')
             )
             ->whereYear('insumos.created_at', $ano) // Filtrar por ano
-            ->groupBy('produtos.nome_produto')
+            ->groupBy('produtos.nome_produto', 'insumos.valor_total')
             ->get();
-
         return view('admin.insumos.index', compact('insumos', 'relatorio', 'ano'));
     }
 
@@ -98,9 +96,9 @@ class InsumoController extends Controller
             'insumo_id' => $insumo->id,
             'id_produto' => $validated['id_produto'],
             'tipo' => 'entrada',
-            'quantidade' => $validated['quantidade_insumo'],
+            'quantidade' => $validated['kg_insumo_total'],
             'valor_unitario' => $validated['valor_unitario'],
-            'valor_total' => $validated['quantidade_insumo'] * $validated['valor_unitario'],
+            'valor_total' => $validated['kg_insumo_total'] * $validated['valor_unitario'],
             'data_movimentacao' => now(),
         ]);
 

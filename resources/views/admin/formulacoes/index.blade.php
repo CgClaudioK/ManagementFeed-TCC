@@ -56,7 +56,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4 text-gray-400">
+                                    <td colspan="6" class="text-center py-4 text-gray-500">
                                         Nenhuma formulação cadastrada ainda.
                                     </td>
                                 </tr>

@@ -123,4 +123,44 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const unidade = document.getElementById("unidade");
+            const quantidade = document.getElementById("quantidade_insumo");
+            const valorKg = document.getElementById("valor_insumo_kg");
+            const valorUnitario = document.getElementById("valor_unitario");
+            const valorTotal = document.getElementById("valor_total");
+            const kgTotal = document.getElementById("kg_insumo_total");
+
+            function calcularValores() {
+                const unidadeSelecionada = unidade.value;
+                const qtd = parseFloat(quantidade.value.replace(",", ".")) || 0;
+                const precoKg = parseFloat(valorKg.value.replace(",", ".")) || 0;
+                let kgConvertido = 0;
+
+                if (unidadeSelecionada === "KG") {
+                    kgConvertido = qtd;
+                } else if (unidadeSelecionada === "SACA") {
+                    kgConvertido = qtd * 60; // Considerando 1 SACA = 60KG
+                }
+
+                if (kgConvertido > 0) {
+                    kgTotal.value = kgConvertido;
+                    valorUnitario.value = precoKg.toFixed(2).replace(".", ",");
+                    valorTotal.value = (kgConvertido * precoKg).toFixed(2).replace(".", ",");
+                } else {
+                    kgTotal.value = "";
+                    valorUnitario.value = "";
+                    valorTotal.value = "";
+                }
+            }
+
+            // Atualiza valores ao modificar os campos
+            unidade.addEventListener("change", calcularValores);
+            quantidade.addEventListener("input", calcularValores);
+            valorKg.addEventListener("input", calcularValores);
+        });
+    </script>
+
+
 </x-app-layout>
